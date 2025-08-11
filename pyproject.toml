@@ -1,0 +1,22 @@
+[project]
+name = "polymarket"
+version = "0.1.0"
+description = "Polymarket data tools and backtesting."
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+requires-python = ">=3.10"
+
+[tool.black]
+line-length = 80
+
+[tool.isort]
+profile = "black"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = ["tests"]
+
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
