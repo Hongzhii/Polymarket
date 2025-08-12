@@ -4,6 +4,7 @@ import copy
 import logging
 from typing import Mapping, Optional, List, Tuple
 
+from services.exceptions import NoValidStatesError
 from utils.utils import unix_to_utc, load_data_cache
 
 # Define sentinel object for handling previous state logic
@@ -55,7 +56,15 @@ class MarketBook:
 
             states.append(latest_state)
 
-        return states
+        if len(states) > 1:
+            return states
+        else:
+            msg = (
+                f"No valid states for {self._book_name} derived from {fp_data}"
+                if self._book_name
+                else f"No valid states for MarketBook object derived from {fp_data}"
+            )
+            raise NoValidStatesError(msg)
 
     def _get_updates(
         self,
@@ -162,12 +171,6 @@ class MarketBook:
         index: int,
     ) -> Tuple[float, float]:
         book = self._states[index]
-        if book == NO_PREVIOUS_STATE:
-            book_name_msg = f": {self._book_name}" if self._book_name else ""
-            raise ValueError(
-                f"Tried to get best bid price from empty book{book_name_msg}"
-            )
-
         best_bid = book["bids"][-1]
 
         return float(best_bid["price"]), float(best_bid["size"])
@@ -177,12 +180,6 @@ class MarketBook:
         index: int,
     ) -> Tuple[float, float]:
         book = self._states[index]
-        if book == NO_PREVIOUS_STATE:
-            book_name_msg = f": {self._book_name}" if self._book_name else ""
-            raise ValueError(
-                f"Tried to get best ask price from empty book{book_name_msg}"
-            )
-
         best_ask = book["asks"][0]
 
         return float(best_ask["price"]), float(best_ask["size"])
