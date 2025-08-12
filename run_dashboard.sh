@@ -84,6 +84,8 @@ fi
 echo "✓ Market data collection started (PID: $DATA_PID)"
 echo "✓ Log file: data/market_data_log.txt"
 echo ""
+echo "Starting data collection..."
+sleep 30
 echo "Starting dashboard... (Press Ctrl+C to stop)"
 echo "================================================"
 
