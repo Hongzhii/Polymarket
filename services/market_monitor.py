@@ -126,7 +126,7 @@ class MarketMonitor:
 
                     if self.cur_buffer_size > self.max_buffer_size:
                         self.flush_buffer()
-            except KeyboardInterrupt:
+            except (asyncio.CancelledError, KeyboardInterrupt):
                 logging.info("Shutdown signal received.")
                 self.flush_buffer()
                 time.sleep(3) # To ensure buffer flush completes before exit
@@ -183,9 +183,24 @@ class MarketMonitor:
                         f"Unexpected event type encountered: {event_type}"
                     )
             self.cur_buffer_size += 1
+
+    def compress(self, update) -> None:
+        """
+        Removes unnecessary information and compresses data for storing.
+        """
+        update_type = update["event_type"] \
+            if "event_type" in update else "price_change"
+        
+        del update["asset_id"]
+        del update["hash"]
+
+        if update_type != "price_change":
+            del update["market"]
         
     def write_buffer(self, buffer):
-        timestamp = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%d %H:%M:%S')
+        timestamp = datetime.datetime.now(datetime.UTC).strftime(
+            '%Y-%m-%d %H:%M:%S'
+        )
         logging.info(f"Buffer write called at {timestamp}")
 
         for cid, updates in buffer.items():
@@ -193,4 +208,5 @@ class MarketMonitor:
 
             with open(fp, "a") as f:
                 for update in updates:
+                    self.compress(update)
                     f.write(json.dumps(update) + "\n")
