@@ -1,7 +1,8 @@
 from utils.websocket_utils import monitor_slugs
 import asyncio
-import os
 import yaml
+import logging
+import argparse
 
 def main(slugs_and_dirs):
     async def run_monitors():
@@ -14,6 +15,22 @@ def main(slugs_and_dirs):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run MarketMonitor.")
+    parser.add_argument(
+        "--log-level",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"], 
+        default="WARNING", 
+        help="Set the logging level"
+    )
+    args = parser.parse_args()
+    
+    log_level = getattr(logging, args.log_level.upper(), logging.INFO)
+    
+    logging.basicConfig(
+        level=log_level,
+        format="%(asctime)s | %(levelname)-8s | %(message)s"
+    )
+    
     with open("datastreams.yaml") as f:
         config = yaml.safe_load(f)
 
