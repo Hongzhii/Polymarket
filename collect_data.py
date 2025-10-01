@@ -48,4 +48,7 @@ if __name__ == "__main__":
         for target in targets
     ]
 
-    main(slugs_and_dirs)
+    try:
+        main(slugs_and_dirs)
+    except KeyboardInterrupt:
+        print("Shutdown websocket monitoring")

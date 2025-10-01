@@ -2,7 +2,6 @@ from collections import defaultdict
 from utils.gamma_utils import get_market_metadata
 from typing import Dict, List
 import asyncio
-import time
 import json
 import logging
 import os
@@ -129,7 +128,7 @@ class MarketMonitor:
             except (asyncio.CancelledError, KeyboardInterrupt):
                 logging.info("Shutdown signal received.")
                 self.flush_buffer()
-                time.sleep(3) # To ensure buffer flush completes before exit
+                asyncio.sleep(3) # To ensure buffer flush completes before exit
             except websockets.exceptions.ConnectionClosedError as e:
                 logging.warning(
                     f"WebSocket connection closed: {e}. "
@@ -178,7 +177,7 @@ class MarketMonitor:
                         self.data_buffer[cid].append(change)
                 case _:
                     self.flush_buffer()
-                    time.sleep(3) # Wait for buffer to flush
+                    asyncio.sleep(3) # Wait for buffer to flush
                     raise ValueError(
                         f"Unexpected event type encountered: {event_type}"
                     )
