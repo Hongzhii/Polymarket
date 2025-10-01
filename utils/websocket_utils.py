@@ -20,12 +20,7 @@ from utils.utils import get_asset_id_mapping, simplify_mapping_dict
 async def monitor_market(asset_ids, output_fp, title=None):
     """
     Monitors market data for specified asset IDs via a websocket connection and
-    saves updates to a JSON file. Connects to the Polymarket websocket API,
-    subscribes to updates for the given asset IDs, and continuously receives
-    market data. The received data is appended to the specified output file in
-    JSON format. Optionally, a title can be printed to indicate which market is
-    being monitored. The function also manages websocket keep-alive by sending
-    "PING" messages if no "PONG" is received within a set interval.
+    saves updates to a JSON file.
 
     Args:
         asset_ids (list): List of asset IDs to monitor.
