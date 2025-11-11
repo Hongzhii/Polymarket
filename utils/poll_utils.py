@@ -1,19 +1,8 @@
-import httpx
 import asyncio
 import requests
 import json
-from enum import Enum
+from utils.constants import Currencies, Frequencies, URL_REST
 
-URL = "https://gamma-api.polymarket.com"
-
-class Frequencies(Enum):
-    YEARLY = "Yearly"
-    MONTHLY = "Monthly"
-    DAILY = "Daily"
-
-class Currencies(Enum):
-    BITCOIN = "Bitcoin"
-    ETHEREUM = "Ethereum"
 
 def load_tag_info(fp):
     with open(fp) as f:
@@ -68,6 +57,7 @@ def search_by_tag(
     url: str,
     tag_id: int,
     results_per_page: int = 200,
+    verbose: bool = False,
 ):
     params = {
         "closed": False,
@@ -77,6 +67,7 @@ def search_by_tag(
         url=url,
         results_per_page=results_per_page,
         params=params,
+        verbose=verbose,
     )
 
     return results
@@ -84,7 +75,8 @@ def search_by_tag(
 async def get_crypto_option_event(
     tag_info,
     freq: Frequencies,
-    currency: Currencies
+    currency: Currencies,
+    verbose: bool = False
 ):
     tags = ["Crypto", "Crypto Prices", "Hit Price"]
     tags.append(freq.value)
@@ -98,8 +90,9 @@ async def get_crypto_option_event(
         tag_fetch_tasks.append(
             asyncio.to_thread(
                 search_by_tag,
-                url=f"{URL}/events",
+                url=f"{URL_REST}/events",
                 tag_id=id,
+                verbose=verbose,
             )
         )
     results = await asyncio.gather(*tag_fetch_tasks)
@@ -116,7 +109,7 @@ async def get_crypto_option_event(
     return common_ids
 
 
-async def poll_events():
+async def poll_events(verbose: bool = False):
     tag_info = load_tag_info("tag_info.json")
 
     tasks = []
@@ -129,6 +122,7 @@ async def poll_events():
                     tag_info=tag_info,
                     freq=f,
                     currency=c,
+                    verbose=verbose,
                 )
             )
             keys.append((f.value, c.value))
@@ -136,6 +130,8 @@ async def poll_events():
     results = await asyncio.gather(*tasks)
 
     mapped = {keys[i]: sorted(list(results[i])) for i in range(len(results))}
+
+    return mapped
 
 
 if __name__=="__main__":
