@@ -13,3 +13,11 @@ class Frequencies(Enum):
 class Currencies(Enum):
     BITCOIN = "Bitcoin"
     ETHEREUM = "Ethereum"
+
+class Side(Enum):
+    BUY = -1
+    SELL = 1
+
+class Outcomes(Enum):
+    YES = "yes"
+    NO = "no"
